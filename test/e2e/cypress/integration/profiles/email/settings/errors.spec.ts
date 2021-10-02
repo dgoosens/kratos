@@ -228,29 +228,41 @@ context('Settings failures with email profile', () => {
         })
 
         it('does not resume another queued request', () => {
+          const email = gen.email()
+          const password = gen.password()
+            cy.clearCookies()
+          cy.registerApi({email, password, fields: {'traits.website': website}})
+          cy.login({email, password, cookieUrl: base})
+          cy.visit(route)
+
           // checks here that we're checking settingsRequest.id == cookie.stored.id
+          const invalidPassword = 'invalid-'+gen.password()
           cy.get('input[name="password"]')
             .clear()
-            .type(up(up(password)))
+            .type(invalidPassword)
           cy.shortPrivilegedSessionTime() // wait for the privileged session to time out
           cy.get('button[value="password"]').click()
           cy.location('pathname').should('include', '/login')
 
-          password = up(password)
+          const validPassword =  'valid-'+gen.password()
           cy.visit(route)
-          cy.get('input[name="password"]').clear().type(password)
+          cy.get('input[name="password"]').clear().type(validPassword)
           cy.get('button[value="password"]').click()
 
           cy.location('pathname').should('include', '/login')
-          cy.reauth({expect: {email}, type: {password: down(password)}})
+          cy.reauth({expect: {email}, type: {password: password}})
+          cy.location('pathname').should('include', '/settings')
 
           // This should pass because it is the correct password
           cy.clearCookies()
-          cy.login({email, password, cookieUrl: base})
+          cy.login({email, password: validPassword, cookieUrl: base})
 
           // This should fail because it is the wrong password
           cy.clearCookies()
-          cy.login({email, password: up(password), expectSession: false, cookieUrl: base})
+          cy.login({email, password: invalidPassword, expectSession: false, cookieUrl: base})
+
+          cy.clearCookies()
+          cy.login({email, password: password, expectSession: false, cookieUrl: base})
         })
       })
     })
