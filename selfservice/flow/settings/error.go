@@ -52,6 +52,11 @@ type (
 // swagger:model needsPrivilegedSessionError
 type FlowNeedsReAuth struct {
 	*herodot.DefaultError
+
+	// Points to where to redirect the user to next.
+	//
+	// required: true
+	RedirectBrowserTo string `json:"redirect_browser_to"`
 }
 
 func NewFlowNeedsReAuth() *FlowNeedsReAuth {
@@ -68,17 +73,19 @@ func (s *ErrorHandler) reauthenticate(
 	w http.ResponseWriter,
 	r *http.Request,
 	f *Flow,
-	err error,
+	err *FlowNeedsReAuth,
 ) {
+	returnTo := urlx.CopyWithQuery(urlx.AppendPaths(s.d.Config(r.Context()).SelfPublicURL(r), r.URL.Path), r.URL.Query())
+	redirectTo := urlx.AppendPaths(urlx.CopyWithQuery(s.d.Config(r.Context()).SelfPublicURL(r),
+		url.Values{"refresh": {"true"}, "return_to": {returnTo.String()}}),
+		login.RouteInitBrowserFlow).String()
+	err.RedirectBrowserTo = returnTo.String()
 	if f.Type == flow.TypeAPI || x.IsJSONRequest(r) {
 		s.d.Writer().WriteError(w, r, err)
 		return
 	}
 
-	returnTo := urlx.CopyWithQuery(urlx.AppendPaths(s.d.Config(r.Context()).SelfPublicURL(r), r.URL.Path), r.URL.Query())
-	http.Redirect(w, r, urlx.AppendPaths(urlx.CopyWithQuery(s.d.Config(r.Context()).SelfPublicURL(r),
-		url.Values{"refresh": {"true"}, "return_to": {returnTo.String()}}),
-		login.RouteInitBrowserFlow).String(), http.StatusSeeOther)
+	http.Redirect(w, r, redirectTo, http.StatusSeeOther)
 }
 
 func (s *ErrorHandler) PrepareReplacementForExpiredFlow(w http.ResponseWriter, r *http.Request, f *Flow, id *identity.Identity, err error) (*flow.ExpiredError, error) {
@@ -167,7 +174,7 @@ func (s *ErrorHandler) WriteFlowError(
 	}
 
 	if e := new(FlowNeedsReAuth); errors.As(err, &e) {
-		s.reauthenticate(w, r, f, err)
+		s.reauthenticate(w, r, f, e)
 		return
 	}
 
