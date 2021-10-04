@@ -51,13 +51,18 @@ type (
 //
 // swagger:model needsPrivilegedSessionError
 type FlowNeedsReAuth struct {
-	*herodot.DefaultError
+	 *herodot.DefaultError `json:"error"`
 
 	// Points to where to redirect the user to next.
 	//
 	// required: true
 	RedirectBrowserTo string `json:"redirect_browser_to"`
 }
+
+func (e *FlowNeedsReAuth) EnhanceJSONError() interface{} {
+	return e
+}
+
 
 func NewFlowNeedsReAuth() *FlowNeedsReAuth {
 	return &FlowNeedsReAuth{
@@ -79,7 +84,7 @@ func (s *ErrorHandler) reauthenticate(
 	redirectTo := urlx.AppendPaths(urlx.CopyWithQuery(s.d.Config(r.Context()).SelfPublicURL(r),
 		url.Values{"refresh": {"true"}, "return_to": {returnTo.String()}}),
 		login.RouteInitBrowserFlow).String()
-	err.RedirectBrowserTo = returnTo.String()
+	err.RedirectBrowserTo = redirectTo
 	if f.Type == flow.TypeAPI || x.IsJSONRequest(r) {
 		s.d.Writer().WriteError(w, r, err)
 		return

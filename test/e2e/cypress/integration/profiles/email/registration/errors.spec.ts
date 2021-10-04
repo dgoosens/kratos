@@ -93,7 +93,7 @@ describe('Registration failures with email profile', () => {
 
           cy.get('button[type="submit"]').click()
 
-          cy.get('*[data-testid^="ui.node.message."]').invoke('text').then((text) => {
+          cy.get('*[data-testid^="ui/message/"]').invoke('text').then((text) => {
             expect(text).to.be.oneOf(['length must be >= 1, but got 0', 'Property password is missing.'])
           })
         })
@@ -103,7 +103,7 @@ describe('Registration failures with email profile', () => {
           cy.get('input[name="password"]').type(password)
 
           cy.get('button[type="submit"]').click()
-          cy.get('*[data-testid^="ui.node.message."]').invoke('text').then((text) => {
+          cy.get('*[data-testid^="ui/message/"]').invoke('text').then((text) => {
             expect(text).to.be.oneOf(['"" is not valid "email"length must be >= 3, but got 0', 'Property email is missing.'])
           })
         })
@@ -113,12 +113,12 @@ describe('Registration failures with email profile', () => {
           cy.get('input[name="password"]').type('not-an-email')
 
           cy.get('button[type="submit"]').click()
-          cy.get('*[data-testid="ui.node.message.4000001"], *[data-testid="ui.node.message.4000002"]').should('exist')
+          cy.get('*[data-testid="ui/message/4000001"], *[data-testid="ui/message/4000002"]').should('exist')
         })
 
         it('should show a missing indicator if no fields are set', () => {
           cy.get('button[type="submit"]').click()
-          cy.get('*[data-testid="ui.node.message.4000001"], *[data-testid="ui.node.message.4000002"]').should('exist')
+          cy.get('*[data-testid="ui/message/4000001"], *[data-testid="ui/message/4000002"]').should('exist')
         })
 
         it('should show an error when the website is not a valid URI', () => {

@@ -9,11 +9,11 @@ replace (
 	github.com/luna-duclos/instrumentedsql/opentracing => github.com/ory/instrumentedsql/opentracing v0.0.0-20210903114257-c8963b546c5c
 	github.com/mattn/go-sqlite3 => github.com/mattn/go-sqlite3 v1.14.7-0.20210414154423-1157a4212dcb
 	github.com/oleiade/reflections => github.com/oleiade/reflections v1.0.1
+	github.com/ory/herodot => ../herodot
 	// Use the internal httpclient which can be generated in this codebase but mark it as the
 	// official SDK, allowing for the Ory CLI to consume Ory Kratos' CLI commands.
 	github.com/ory/kratos-client-go => ./internal/httpclient
 	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.4.6
-	gopkg.in/DataDog/dd-trace-go.v1 => gopkg.in/DataDog/dd-trace-go.v1 v1.27.1-0.20201005154917-54b73b3e126a
 )
 
 require (

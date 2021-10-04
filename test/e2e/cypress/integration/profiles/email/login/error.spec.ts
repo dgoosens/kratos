@@ -64,7 +64,7 @@ describe('Basic email profile with failing login flows', () => {
 
         it('should show an error when the identifier is missing', () => {
           cy.get('button[type="submit"]').click()
-          cy.get('*[data-testid="ui.node.message.4000001"]').should(
+          cy.get('*[data-testid="ui/message/4000001"]').should(
             'contain.text',
             'length must be >= 1, but got 0'
           )
@@ -78,7 +78,7 @@ describe('Basic email profile with failing login flows', () => {
 
           cy.get('button[type="submit"]').click()
 
-          cy.get('*[data-testid^="ui.node.message."]').invoke('text').then((text) => {
+          cy.get('*[data-testid^="ui/message/"]').invoke('text').then((text) => {
             expect(text).to.be.oneOf(['length must be >= 1, but got 0', 'Property password is missing.'])
           })
         })
@@ -88,7 +88,7 @@ describe('Basic email profile with failing login flows', () => {
           cy.get('input[name="password"]').type('invalid-password')
 
           cy.get('button[type="submit"]').click()
-          cy.get('*[data-testid="ui.node.message.4000006"]').should(
+          cy.get('*[data-testid="ui/message/4000006"]').should(
             'contain.text',
             'credentials are invalid'
           )
